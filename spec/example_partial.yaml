@@ -1,0 +1,47 @@
+# Igual a example.yaml, mas com UMA UNICA violacao: o "ssh-sg" libera a
+# porta 22 para 0.0.0.0/0. Demonstra que o veredito e por propriedade
+# (P1, P2 e P4 continuam passando; so P3 falha), nao tudo-ou-nada.
+
+vpcs:
+  - name: main-vpc
+    cidr: 10.0.0.0/16
+
+subnets:
+  - name: public-subnet
+    vpc: main-vpc
+    cidr: 10.0.1.0/24
+  - name: private-subnet
+    vpc: main-vpc
+    cidr: 10.0.2.0/24
+
+security_groups:
+  - name: web-sg
+    ingress:
+      - proto: tcp
+        port_from: 80
+        port_to: 80
+        src: 0.0.0.0/0
+      - proto: tcp
+        port_from: 443
+        port_to: 443
+        src: 0.0.0.0/0
+  - name: ssh-sg
+    ingress:
+      - proto: tcp
+        port_from: 22
+        port_to: 22
+        src: 0.0.0.0/0    # violacao: SSH aberto para o mundo
+  - name: db-sg
+    ingress:
+      - proto: tcp
+        port_from: 5432
+        port_to: 5432
+        src: 10.0.2.0/24
+
+instances:
+  - name: web1
+    subnet: public-subnet
+    security_groups: [web-sg, ssh-sg]
+  - name: db1
+    subnet: private-subnet
+    security_groups: [db-sg]

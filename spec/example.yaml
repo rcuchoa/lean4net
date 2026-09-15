@@ -1,0 +1,47 @@
+# Infraestrutura de exemplo: uma VPC com subnet publica e privada,
+# um servidor web e um banco de dados. Espera-se que TODAS as
+# propriedades verificadas passem.
+
+vpcs:
+  - name: main-vpc
+    cidr: 10.0.0.0/16
+
+subnets:
+  - name: public-subnet
+    vpc: main-vpc
+    cidr: 10.0.1.0/24
+  - name: private-subnet
+    vpc: main-vpc
+    cidr: 10.0.2.0/24
+
+security_groups:
+  - name: web-sg
+    ingress:
+      - proto: tcp
+        port_from: 80
+        port_to: 80
+        src: 0.0.0.0/0
+      - proto: tcp
+        port_from: 443
+        port_to: 443
+        src: 0.0.0.0/0
+  - name: ssh-sg
+    ingress:
+      - proto: tcp
+        port_from: 22
+        port_to: 22
+        src: 10.0.0.0/16   # somente dentro da propria VPC (bastion), nao aberto ao mundo
+  - name: db-sg
+    ingress:
+      - proto: tcp
+        port_from: 5432
+        port_to: 5432
+        src: 10.0.2.0/24   # somente a subnet privada
+
+instances:
+  - name: web1
+    subnet: public-subnet
+    security_groups: [web-sg, ssh-sg]
+  - name: db1
+    subnet: private-subnet
+    security_groups: [db-sg]

@@ -1,0 +1,45 @@
+# Variante da mesma infraestrutura com violacoes propositais, para
+# demonstrar que o verificador realmente rejeita especificacoes inseguras
+# ou inconsistentes:
+#
+#   - "extra-subnet" NAO esta contida no CIDR da VPC          -> falha P1
+#   - "public-subnet" e "extra-subnet" se sobrepoem            -> falha P2
+#   - "ssh-sg" libera a porta 22 para 0.0.0.0/0 (mundo)         -> falha P3
+#   - "web2" referencia o security group inexistente "web-sg2" -> falha P4
+
+vpcs:
+  - name: main-vpc
+    cidr: 10.0.0.0/16
+
+subnets:
+  - name: public-subnet
+    vpc: main-vpc
+    cidr: 10.0.1.0/24
+  - name: extra-subnet
+    vpc: main-vpc
+    cidr: 10.0.1.128/25   # dentro da faixa de public-subnet -> overlap
+  - name: outside-subnet
+    vpc: main-vpc
+    cidr: 192.168.1.0/24  # fora do CIDR 10.0.0.0/16 da VPC
+
+security_groups:
+  - name: web-sg
+    ingress:
+      - proto: tcp
+        port_from: 80
+        port_to: 80
+        src: 0.0.0.0/0
+  - name: ssh-sg
+    ingress:
+      - proto: tcp
+        port_from: 22
+        port_to: 22
+        src: 0.0.0.0/0    # SSH aberto para o mundo todo
+
+instances:
+  - name: web1
+    subnet: public-subnet
+    security_groups: [web-sg, ssh-sg]
+  - name: web2
+    subnet: public-subnet
+    security_groups: [web-sg2]   # security group inexistente
