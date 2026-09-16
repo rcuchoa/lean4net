@@ -1,0 +1,414 @@
+:root {
+  --bg: #1e1e2e;
+  --bg-panel: #242438;
+  --bg-header: #181825;
+  --border: #33334d;
+  --text: #e0e0f0;
+  --text-dim: #9090b0;
+  --accent: #7aa2f7;
+  --accent-2: #a78bfa;
+  --pass: #4ade80;
+  --fail: #f87171;
+  --mono: "SF Mono", "Fira Code", Consolas, Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  padding: 12px 20px;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  position: relative;
+  z-index: 2;
+}
+
+.logo { display: flex; align-items: center; gap: 9px; margin: 0; }
+.logo-mark { width: 24px; height: 24px; flex-shrink: 0; }
+.logo-wordmark {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+header p { margin: 3px 0 0 33px; font-size: 0.8rem; color: var(--text-dim); }
+
+.header-session { display: flex; align-items: center; gap: 10px; }
+.session-user { font-size: 0.8rem; color: var(--text-dim); }
+
+.secondary-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  text-decoration: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.secondary-btn:hover { border-color: var(--accent); color: var(--text); }
+
+main {
+  display: grid;
+  grid-template-columns: 1fr 6px 1fr;
+  background: var(--border);
+  flex: 1;
+  min-height: 0;
+}
+
+.column {
+  display: grid;
+  grid-template-rows: minmax(150px, 1fr) 6px minmax(150px, 1fr);
+  min-height: 0;
+  min-width: 0;
+}
+
+.pane {
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.resizer {
+  background: var(--border);
+  position: relative;
+  z-index: 1;
+}
+.resizer::after {
+  content: "";
+  position: absolute;
+  background: var(--text-dim);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.resizer:hover::after,
+.resizer.dragging::after {
+  opacity: 0.9;
+  background: var(--accent);
+}
+.resizer.dragging { background: var(--accent); }
+
+.v-resizer {
+  cursor: col-resize;
+  touch-action: none;
+}
+.v-resizer::after {
+  top: 50%;
+  left: 50%;
+  width: 3px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+}
+
+.h-resizer {
+  cursor: row-resize;
+  touch-action: none;
+}
+.h-resizer::after {
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 3px;
+  transform: translate(-50%, -50%);
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;  /* varios controles por etapa -- o header pode nao caber em telas estreitas */
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  gap: 10px;
+}
+.pane-header h2 {
+  margin: 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.pane-actions { display: flex; align-items: center; gap: 8px; }
+
+/* Abas do painel do meio: fazem o papel do <h2> dos outros paineis, entao
+   herdam o mesmo tamanho/caixa-alta do titulo. */
+.view-tabs { display: flex; gap: 4px; }
+
+.tab-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.is-active {
+  color: var(--text);
+  border-color: var(--border);
+  background: var(--bg-panel);
+}
+
+.code-view {
+  flex: 1;
+  margin: 0;
+  padding: 14px;
+  overflow: auto;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+  background: var(--bg-panel);
+  color: var(--text);
+  border: none;
+  resize: none;
+}
+
+textarea.code-view { outline: none; }
+textarea.code-view::placeholder { color: var(--text-dim); }
+pre.code-view { color: var(--text-dim); }
+
+/* `hidden` precisa vencer o `display` implicito do flex item. */
+.code-view[hidden] { display: none; }
+
+/* O prompt e texto corrido, nao codigo: quebrar linha em vez de rolar na
+   horizontal. */
+.wrap-view { white-space: pre-wrap; word-break: break-word; }
+
+/* Editor de propriedades (zona 1 -- pane proprio, sempre visivel). */
+.properties-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 14px;
+  gap: 8px;
+}
+
+.properties-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+}
+
+.property-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--bg-header);
+  border-radius: 6px;
+  font-size: 0.78rem;
+}
+.property-id {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.property-desc-input {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  resize: vertical;
+  padding: 2px 4px;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.4;
+}
+.property-desc-input:hover { border-color: var(--border); }
+.property-desc-input:focus {
+  outline: none;
+  color: var(--text);
+  background: var(--bg-panel);
+  border-color: var(--accent);
+}
+.property-remove {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 2px;
+}
+.property-remove:hover { color: var(--fail); }
+
+.properties-form { flex-shrink: 0; display: flex; gap: 6px; align-items: flex-end; }
+.properties-form textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 40px;
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  font-family: inherit;
+}
+.properties-add-btn { white-space: nowrap; }
+
+.file-btn {
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.file-btn:hover { border-color: var(--accent); }
+
+.primary-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #10101a;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(122, 162, 247, 0.3);
+}
+.primary-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 4px 14px rgba(122, 162, 247, 0.45);
+  transform: translateY(-1px);
+}
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.primary-btn,
+.file-btn,
+.secondary-btn {
+  border-radius: 6px;
+  transition: filter 0.15s, border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.primary-btn:focus-visible,
+.file-btn:focus-visible,
+.secondary-btn:focus-visible,
+.property-remove:focus-visible,
+.properties-form textarea:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Area de mensagens no rodape -- unico lugar onde texto de status/erro da
+   interface e mostrado (ver frontend/messages.js). Pode receber texto longo
+   e com quebras de linha (ex.: saida do compilador Lean por propriedade
+   falha), entao cresce ate um teto e rola em vez de estourar a pagina. */
+.message-bar {
+  flex-shrink: 0;
+  max-height: 30vh;
+  overflow-y: auto;
+  padding: 10px 20px;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+#message-text {
+  display: block;
+  white-space: pre-wrap;
+  font-family: var(--mono);
+}
+.message-running {
+  color: var(--accent);
+  background: rgba(122, 162, 247, 0.12);
+  border-top-color: var(--accent);
+}
+.message-pass {
+  color: var(--pass);
+  background: rgba(74, 222, 128, 0.12);
+  border-top-color: var(--pass);
+}
+.message-fail,
+.message-error {
+  color: var(--fail);
+  background: rgba(248, 113, 113, 0.12);
+  border-top-color: var(--fail);
+}
+
+.result-view {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 14px;
+}
+
+
+.prop-row {
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  background: var(--bg-header);
+  align-items: flex-start;
+}
+.prop-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
+.prop-icon.pass { color: var(--pass); }
+.prop-icon.fail { color: var(--fail); }
+.prop-body { flex: 1; min-width: 0; }
+.prop-title { font-family: var(--mono); font-size: 0.82rem; font-weight: 600; }
+.prop-id { color: var(--text-dim); font-weight: 400; margin-right: 6px; }
+.prop-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+
+
+@media (max-width: 800px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  .column {
+    display: flex;
+    flex-direction: column;
+  }
+  .pane {
+    min-height: 320px;
+  }
+  .resizer { display: none; }
+}

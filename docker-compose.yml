@@ -1,0 +1,54 @@
+# Reflete os mesmos dois servicos ja geridos localmente via PM2
+# (ecosystem.config.cjs) -- webapp na porta 5000, lean-api na 8000 --
+# rodando a partir da MESMA imagem (ver Dockerfile), so com comando/porta
+# diferentes. `cli` e um terceiro servico opcional (profile "cli") para
+# rodar comandos pontuais (main.py, hash_password.py, ...) sem subir nada
+# persistente -- sem `entrypoint` fixo, para que `docker compose run cli
+# <qualquer comando>` funcione por igual para todos eles.
+services:
+  webapp:
+    build: .
+    image: lean4net:latest
+    command: >
+      gunicorn --bind 0.0.0.0:5000 --workers 2 --timeout 300
+      backend.webapp.server:app
+    ports:
+      - "5050:5000"
+    environment:
+      # Sem exigencia `:?` aqui de proposito: isso bloquearia QUALQUER
+      # comando do compose (inclusive `run cli ...`, usado para gerar o
+      # proprio hash abaixo) enquanto o .env estivesse incompleto. Quem
+      # exige e recusa subir sem eles e o proprio backend/webapp/auth.py
+      # (sys.exit(1) com mensagem explicativa) -- ver README "Docker".
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      LEAN4NET_ADMIN_USER: "${LEAN4NET_ADMIN_USER:-}"
+      LEAN4NET_ADMIN_PASSWORD_HASH: "${LEAN4NET_ADMIN_PASSWORD_HASH:-}"
+      LEAN4NET_SECRET_KEY: "${LEAN4NET_SECRET_KEY:-}"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  lean-api:
+    build: .
+    image: lean4net:latest
+    working_dir: /app/backend/lean-api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      LEAN_TIMEOUT: ${LEAN_API_TIMEOUT:-10}
+      LEAN_MAX_CODE_SIZE: ${LEAN_API_MAX_CODE_SIZE:-100000}
+    restart: unless-stopped
+
+  # Uso pontual, nao sobe com `docker compose up`:
+  #   docker compose run --rm cli python3 main.py generate data/spec/example.yaml
+  #   docker compose run --rm cli python3 main.py verify data/build/example.lean
+  #   docker compose run --rm cli python3 backend/webapp/hash_password.py 'sua-senha'
+  cli:
+    build: .
+    image: lean4net:latest
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+    profiles: ["cli"]

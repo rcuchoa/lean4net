@@ -1,0 +1,14 @@
+.git
+.gitignore
+.claude
+.ruff_cache
+__pycache__
+**/__pycache__
+*.pyc
+.pytest_cache
+**/.pytest_cache
+.DS_Store
+docs
+data/build/*.lean
+node_modules
+docker/*.crt

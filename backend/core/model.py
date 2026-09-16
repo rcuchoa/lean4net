@@ -79,3 +79,21 @@ class InfraSpec:
     subnets: list[Subnet]
     security_groups: list[SecurityGroup]
     instances: list[Instance]
+
+
+@dataclass(frozen=True)
+class CustomProperty:
+    """Propriedade adicional definida pelo usuario, em linguagem natural.
+
+    `theorem_name` e sempre derivado deterministicamente do `id` (nunca
+    escolhido pelo usuario) para que a etapa de verificacao consiga
+    reconstruir o nome esperado do teorema mesmo sem ter a definicao
+    original em maos (ver `lean_codegen.parse_properties`).
+    """
+
+    id: str
+    description: str
+
+    @property
+    def theorem_name(self) -> str:
+        return f"customProp_{self.id}"

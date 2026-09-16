@@ -6,14 +6,28 @@ Validacoes feitas aqui (rapidas, em Python, antes de gerar Lean):
   - nomes unicos dentro de cada categoria
   - referencias sintaticas presentes (nao valida aqui se apontam para algo
     existente -- isso e uma das PROPRIEDADES verificadas pelo Lean, ver
-    verifier/lean_codegen.py, propriedade P4)
+    backend/core/lean_codegen.py, propriedade P4)
 """
 
 from __future__ import annotations
 
+import re
+
 import yaml
 
-from verifier.model import Cidr, Instance, InfraSpec, Rule, SecurityGroup, Subnet, Vpc, SpecError
+from backend.core.model import (
+    Cidr,
+    CustomProperty,
+    Instance,
+    InfraSpec,
+    Rule,
+    SecurityGroup,
+    Subnet,
+    Vpc,
+    SpecError,
+)
+
+_CUSTOM_ID_RE = re.compile(r"^C\d+$")
 
 
 def _require(d: dict, key: str, where: str):
@@ -85,3 +99,38 @@ def load_spec(path: str) -> InfraSpec:
     _check_unique([i.name for i in instances], "instances")
 
     return InfraSpec(vpcs=vpcs, subnets=subnets, security_groups=sgs, instances=instances)
+
+
+def load_custom_properties(raw: list | None) -> list[CustomProperty]:
+    """Valida e converte a lista de propriedades customizadas do editor.
+
+    `raw` e o que o cliente (webapp ou CLI) enviou: uma lista de objetos
+    `{"id": "C1", "description": "..."}` -- id no formato `C<numero>`
+    (atribuido pelo proprio editor, nunca digitado a mao) e descricao em
+    linguagem natural do que a propriedade deve garantir. `None` ou lista
+    vazia significa "nenhuma propriedade adicional", o caso comum.
+    """
+    if not raw:
+        return []
+    if not isinstance(raw, list):
+        raise SpecError("propriedades customizadas: formato invalido (esperada uma lista)")
+
+    seen: set[str] = set()
+    result: list[CustomProperty] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise SpecError("propriedades customizadas: cada item deve ser um objeto")
+        pid = str(_require(item, "id", "propriedade customizada"))
+        desc = str(_require(item, "description", f"propriedade customizada {pid!r}")).strip()
+        if not _CUSTOM_ID_RE.match(pid):
+            raise SpecError(
+                f"propriedade customizada: id invalido {pid!r} (esperado algo como 'C1')"
+            )
+        if pid in seen:
+            raise SpecError(f"propriedade customizada: id duplicado {pid!r}")
+        if not desc:
+            raise SpecError(f"propriedade customizada {pid!r}: descricao vazia")
+        seen.add(pid)
+        result.append(CustomProperty(id=pid, description=desc))
+
+    return result

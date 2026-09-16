@@ -1,0 +1,26 @@
+# Segredos -- nunca commitar (ANTHROPIC_API_KEY, hash de senha, secret key).
+.env
+
+# Config local do Claude Code (permissoes por maquina, caminhos absolutos
+# do dev) -- pessoal, nao faz sentido compartilhar no repo.
+.claude/settings.local.json
+
+# CA corporativa (proxy com interceptacao de TLS, ex. Cisco Secure Access)
+# -- especifica desta rede, nunca deve ir pra imagem/repo compartilhados.
+# Ver "Rede corporativa / proxy com interceptacao de TLS" no README.
+docker/*.crt
+docker-compose.override.yml
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Lean / Lake
+.lake/
+lakefile.olean
+lake-manifest.json
+
+# OS
+.DS_Store

@@ -1,0 +1,24 @@
+# Copie para docker-compose.override.yml (o Compose carrega esse nome
+# automaticamente, sem precisar de -f) se sua rede intercepta TLS --
+# proxy corporativo (Cisco Secure Access/Umbrella, Zscaler, etc.) que
+# reemite certificados com uma CA propria. Sem isso, `POST /api/generate`
+# falha com "Connection error" / CERTIFICATE_VERIFY_FAILED mesmo com
+# ANTHROPIC_API_KEY correta -- ver "Rede corporativa" no README.
+#
+# `update-ca-certificates` exige exatamente UM certificado por arquivo
+# .crt -- se sua cadeia tiver mais de uma CA raiz (comum: uma para o
+# proxy em si, outra para o produto por tras dele), exporte cada uma
+# separadamente e adicione um volume + linha no loop abaixo por CA.
+services:
+  webapp:
+    volumes:
+      - ./docker/corporate-ca-1.crt:/usr/local/share/ca-certificates/corporate-ca-1.crt:ro
+      # - ./docker/corporate-ca-2.crt:/usr/local/share/ca-certificates/corporate-ca-2.crt:ro
+    command: >
+      sh -c "update-ca-certificates && exec gunicorn --bind 0.0.0.0:5000 --workers 2 --timeout 300 backend.webapp.server:app"
+
+  cli:
+    volumes:
+      - ./docker/corporate-ca-1.crt:/usr/local/share/ca-certificates/corporate-ca-1.crt:ro
+      # - ./docker/corporate-ca-2.crt:/usr/local/share/ca-certificates/corporate-ca-2.crt:ro
+    entrypoint: ["sh", "-c", "update-ca-certificates >/dev/null && exec \"$@\"", "--"]

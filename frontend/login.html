@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lean4net &mdash; login</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <header>
+    <div class="header-title">
+      <h1 class="logo">
+        <svg class="logo-mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 2 L28 9 V23 L16 30 L4 23 V9 Z" fill="none" stroke="url(#logo-grad)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M10 16.5 L14.5 21 L22.5 11.5" fill="none" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0" stop-color="#7aa2f7"/>
+              <stop offset="1" stop-color="#a78bfa"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-wordmark">lean4net</span>
+      </h1>
+      <p>verificador formal de infraestrutura de nuvem &mdash; Lean 4</p>
+    </div>
+  </header>
+
+  <main class="login-main">
+    <form id="login-form" class="login-card" autocomplete="on">
+      <h2>Entrar</h2>
+
+      <label for="login-username">Usu&aacute;rio</label>
+      <input type="text" id="login-username" name="username" autocomplete="username" required autofocus>
+
+      <label for="login-password">Senha</label>
+      <input type="password" id="login-password" name="password" autocomplete="current-password" required>
+
+      <label class="login-remember">
+        <input type="checkbox" id="login-remember" name="remember">
+        manter conectado
+      </label>
+
+      <button type="submit" id="login-submit" class="primary-btn login-submit">Entrar</button>
+    </form>
+  </main>
+
+  <footer id="message-bar" class="message-bar message-idle" role="status" aria-live="polite">
+    <span id="message-text">&nbsp;</span>
+  </footer>
+
+  <script src="messages.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

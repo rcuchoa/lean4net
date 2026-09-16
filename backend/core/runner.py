@@ -15,7 +15,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass
 
-from verifier.lean_codegen import Property
+from backend.core.lean_codegen import Property
 
 _ERROR_RE = re.compile(r"^(?P<file>.+?):(?P<line>\d+):(?P<col>\d+):\s*error:\s*(?P<msg>.*)$")
 

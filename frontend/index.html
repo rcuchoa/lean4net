@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lean4net</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-title">
+      <h1 class="logo">
+        <svg class="logo-mark" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 2 L28 9 V23 L16 30 L4 23 V9 Z" fill="none" stroke="url(#logo-grad)" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M10 16.5 L14.5 21 L22.5 11.5" fill="none" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <defs>
+            <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+              <stop offset="0" stop-color="#7aa2f7"/>
+              <stop offset="1" stop-color="#a78bfa"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-wordmark">lean4net</span>
+      </h1>
+      <p>verificador formal de infraestrutura de nuvem &mdash; Lean 4</p>
+    </div>
+    <div class="header-session">
+      <span id="session-user" class="session-user"></span>
+      <a id="logout-link" href="/logout" class="secondary-btn">Sair</a>
+    </div>
+  </header>
+
+  <main id="main-grid">
+    <div class="column" id="column-left">
+      <section class="pane properties-pane">
+        <div class="pane-header">
+          <h2>1. Propriedades</h2>
+        </div>
+        <div class="properties-body">
+          <div id="properties-list" class="properties-list"></div>
+          <form id="properties-form" class="properties-form">
+            <textarea id="properties-input" rows="2" placeholder="Descreva em linguagem natural o que a nova propriedade deve garantir (ex.: nenhuma instancia na subnet publica tem a porta 3389 aberta)"></textarea>
+            <button type="submit" class="secondary-btn properties-add-btn">+ Adicionar</button>
+          </form>
+        </div>
+      </section>
+
+      <div id="h-resizer-left" class="resizer h-resizer" title="arraste para redimensionar (duplo clique para restaurar)"></div>
+
+      <section class="pane yaml-pane">
+        <div class="pane-header">
+          <h2>2. Especifica&ccedil;&atilde;o da infraestrutura (YAML)</h2>
+          <div class="pane-actions">
+            <label class="file-btn" for="file-input">Carregar arquivo</label>
+            <input type="file" id="file-input" accept=".yaml,.yml,text/yaml" hidden>
+            <button id="generate-btn" class="primary-btn">Gerar Lean</button>
+          </div>
+        </div>
+        <textarea id="yaml-input" class="code-view" spellcheck="false"></textarea>
+      </section>
+    </div>
+
+    <div id="v-resizer" class="resizer v-resizer" title="arraste para redimensionar (duplo clique para restaurar)"></div>
+
+    <div class="column" id="column-right">
+      <section class="pane lean-pane">
+        <div class="pane-header">
+          <div class="view-tabs" role="tablist">
+            <button id="tab-prompt" class="tab-btn is-active" role="tab" aria-selected="true">3. AI Prompt</button>
+            <button id="tab-lean" class="tab-btn" role="tab" aria-selected="false">C&oacute;digo Lean 4</button>
+          </div>
+          <div class="pane-actions">
+            <button id="verify-btn" class="primary-btn" disabled>Verificar</button>
+          </div>
+        </div>
+        <pre id="prompt-output" class="code-view wrap-view">O prompt que ser&aacute; enviado ao LLM aparece aqui ao clicar em &quot;Gerar Lean&quot; &mdash; antes de a gera&ccedil;&atilde;o come&ccedil;ar.</pre>
+        <textarea id="lean-output" class="code-view" spellcheck="false" hidden
+          placeholder="-- o codigo Lean 4 gerado a partir do YAML aparecera aqui (editavel antes de verificar)"></textarea>
+      </section>
+
+      <div id="h-resizer-right" class="resizer h-resizer" title="arraste para redimensionar (duplo clique para restaurar)"></div>
+
+      <section class="pane result-pane">
+        <div class="pane-header">
+          <h2>4. Resultado da verifica&ccedil;&atilde;o</h2>
+        </div>
+        <div id="result-output" class="result-view"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="message-bar" class="message-bar message-idle" role="status" aria-live="polite">
+    <span id="message-text">Etapa 1: carregue ou edite um YAML e clique em &quot;Gerar Lean&quot; &mdash; o prompt enviado ao LLM aparece no painel ao lado antes da gera&ccedil;&atilde;o. Etapa 2: revise o Lean gerado e clique em &quot;Verificar&quot; para rodar o compilador Lean 4.</span>
+  </footer>
+
+  <script src="messages.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

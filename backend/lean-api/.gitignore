@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Lean / Lake (caso LEAN_PROJECT_DIR aponte para dentro deste diretorio)
+.lake/
+build/
+lakefile.olean
+lake-manifest.json
+
+# OS
+.DS_Store
