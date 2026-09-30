@@ -12,3 +12,4 @@ docs
 data/build/*.lean
 node_modules
 docker/*.crt
+.env
