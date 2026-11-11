@@ -45,4 +45,4 @@ COPY frontend/ frontend/
 COPY data/ data/
 COPY main.py main.py
 
-EXPOSE 5000 8000
+EXPOSE 5000 8080
