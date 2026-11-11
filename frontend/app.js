@@ -100,7 +100,7 @@ const DEFAULT_PROPERTIES_FALLBACK = [
 async function loadDefaultProperties() {
   let defaults;
   try {
-    const res = await fetch("/api/default-properties");
+    const res = await fetch("api/default-properties");
     const data = await res.json();
     defaults = data.properties || [];
   } catch (e) {
@@ -155,7 +155,7 @@ function formatPrompt(p) {
 
 async function loadExample() {
   try {
-    const res = await fetch("/api/example");
+    const res = await fetch("api/example");
     const data = await res.json();
     yamlInput.value = data.yaml || "";
   } catch (e) {
@@ -236,13 +236,13 @@ async function runGenerate() {
   setMessage("running", "Etapa 1/2 — montando o prompt...");
 
   try {
-    const promptRes = await fetch("/api/prompt", {
+    const promptRes = await fetch("api/prompt", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
     });
     if (promptRes.status === 401) {
-      window.location.href = "/login";
+      window.location.href = "login";
       return;
     }
     const promptPayload = await promptRes.json();
@@ -255,13 +255,13 @@ async function runGenerate() {
     promptOutput.textContent = formatPrompt(promptPayload);
     setMessage("running", "Etapa 1/2 — gerando o Lean 4 via LLM...");
 
-    const res = await fetch("/api/generate", {
+    const res = await fetch("api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
     });
     if (res.status === 401) {
-      window.location.href = "/login";
+      window.location.href = "login";
       return;
     }
     const payload = await res.json();
@@ -294,13 +294,13 @@ async function runVerify() {
   setMessage("running", "Etapa 2/2 — executando o compilador Lean 4...");
 
   try {
-    const res = await fetch("/api/verify", {
+    const res = await fetch("api/verify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lean_source: leanText, custom_properties: customProperties }),
     });
     if (res.status === 401) {
-      window.location.href = "/login";
+      window.location.href = "login";
       return;
     }
     const payload = await res.json();
@@ -332,9 +332,9 @@ loadDefaultProperties();
 
 async function loadSession() {
   try {
-    const res = await fetch("/api/whoami");
+    const res = await fetch("api/whoami");
     if (res.status === 401) {
-      window.location.href = "/login";
+      window.location.href = "login";
       return;
     }
     const data = await res.json();

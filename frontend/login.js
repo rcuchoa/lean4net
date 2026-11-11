@@ -13,7 +13,7 @@ form.addEventListener("submit", async (e) => {
   });
 
   try {
-    const res = await fetch("/login", {
+    const res = await fetch("login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
@@ -24,7 +24,7 @@ form.addEventListener("submit", async (e) => {
       return;
     }
     setMessage("pass", "Login realizado. Redirecionando...");
-    window.location.href = "/";
+    window.location.href = "./";
   } catch (err) {
     setMessage("error", `Falha ao conectar com o servidor: ${err.message}`);
   } finally {

@@ -28,6 +28,7 @@ import tempfile
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, PROJECT_ROOT)
 
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, jsonify, redirect, request, send_from_directory, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -47,6 +48,11 @@ from backend.webapp.auth import login_manager, verify_credentials
 DEFAULT_SENSITIVE_PORTS = "22,3389"
 
 app = Flask(__name__, static_folder="../../frontend", static_url_path="")
+# Atras do nginx do www.uchoa.tech o app fica em /lean4net/: o proxy manda
+# X-Forwarded-Prefix e o ProxyFix faz url_for/redirect respeitarem o prefixo.
+# O frontend usa caminhos relativos, entao funciona igual na raiz (:5050) e no
+# subcaminho.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=0, x_proto=1, x_host=0, x_prefix=1)
 
 app.secret_key = os.environ.get("LEAN4NET_SECRET_KEY") or secrets.token_hex(32)
 if not os.environ.get("LEAN4NET_SECRET_KEY"):
